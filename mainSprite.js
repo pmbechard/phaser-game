@@ -1,6 +1,5 @@
 export default class MainCharacter {
   #isFacing;
-  #isAttacking;
   #SPEED;
   #ANIM_SPEED;
 
@@ -8,6 +7,7 @@ export default class MainCharacter {
     this.#SPEED = 150;
     this.#ANIM_SPEED = 20;
     this.#isFacing = 'down';
+    this.#loadAssets();
     this.#initMovement();
     this.mainSprite = add([
       sprite('walk-down'),
@@ -27,7 +27,139 @@ export default class MainCharacter {
     this.#initAttack();
   }
 
+  get isFacing() {
+    return this.#isFacing;
+  }
+
+  isAttacking() {
+    return this.mainSprite.curAnim() === 'attack';
+  }
+
+  takeDamage(collision) {
+    if (collision.isTop()) {
+      this.mainSprite.moveBy(0, 50);
+    } else if (collision.isBottom()) {
+      this.mainSprite.moveBy(0, -50);
+    } else if (collision.isLeft()) {
+      this.mainSprite.moveBy(50, 0);
+    } else {
+      this.mainSprite.moveBy(-50, 0);
+    }
+    this.mainSprite.use(sprite(`hurt-${this.#isFacing}`));
+    this.mainSprite.play('hurt');
+  }
+
   #initMovement() {
+    onKeyDown('left', () => {
+      if (
+        this.mainSprite.curAnim() === 'attack' ||
+        this.mainSprite.curAnim() === 'hurt'
+      )
+        return;
+      if (this.mainSprite.curAnim() !== 'run') {
+        this.mainSprite.use(sprite('walk-left'));
+        this.mainSprite.play('run');
+        this.#isFacing = 'left';
+      }
+      this.mainSprite.move(-this.#SPEED, 0);
+    });
+    onKeyRelease('left', () => {
+      this.mainSprite.frame = 0;
+      this.mainSprite.stop();
+    });
+
+    onKeyDown('right', () => {
+      if (
+        this.mainSprite.curAnim() === 'attack' ||
+        this.mainSprite.curAnim() === 'hurt'
+      )
+        return;
+      if (this.mainSprite.curAnim() !== 'run') {
+        this.mainSprite.use(sprite('walk-right'));
+        this.mainSprite.play('run');
+        this.#isFacing = 'right';
+      }
+      this.mainSprite.move(this.#SPEED, 0);
+    });
+    onKeyRelease('right', () => {
+      this.mainSprite.frame = 0;
+      this.mainSprite.stop();
+    });
+
+    onKeyDown('up', () => {
+      if (
+        this.mainSprite.curAnim() === 'attack' ||
+        this.mainSprite.curAnim() === 'hurt'
+      )
+        return;
+      if (this.mainSprite.curAnim() !== 'run') {
+        this.mainSprite.use(sprite('walk-up'));
+        this.mainSprite.play('run');
+        this.#isFacing = 'up';
+      }
+      this.mainSprite.move(0, -this.#SPEED);
+    });
+    onKeyRelease('up', () => {
+      this.mainSprite.frame = 0;
+      this.mainSprite.stop();
+    });
+
+    onKeyDown('down', () => {
+      if (
+        this.mainSprite.curAnim() === 'attack' ||
+        this.mainSprite.curAnim() === 'hurt'
+      )
+        return;
+      if (this.mainSprite.curAnim() !== 'run') {
+        this.mainSprite.use(sprite('walk-down'));
+        this.mainSprite.play('run');
+        this.#isFacing = 'down';
+      }
+      this.mainSprite.move(0, this.#SPEED);
+    });
+    onKeyRelease('down', () => {
+      this.mainSprite.frame = 0;
+      this.mainSprite.stop();
+    });
+  }
+
+  #initAttack() {
+    /// ATTACK ANIMATION ///
+    const facingMap = {
+      down: () => {
+        this.mainSprite.area.shape.pts[2] = vec2(20, 50);
+        this.mainSprite.area.shape.pts[3] = vec2(0, 50);
+      },
+      up: () => {
+        this.mainSprite.area.shape.pts[0] = vec2(0, -20);
+        this.mainSprite.area.shape.pts[1] = vec2(20, -20);
+      },
+      left: () => {
+        this.mainSprite.area.shape.pts[0] = vec2(-20, 0);
+        this.mainSprite.area.shape.pts[3] = vec2(-20, 30);
+      },
+      right: () => {
+        this.mainSprite.area.shape.pts[1] = vec2(40, 0);
+        this.mainSprite.area.shape.pts[2] = vec2(40, 30);
+      },
+    };
+    onKeyPress('space', () => {
+      if (this.mainSprite.curAnim === 'attack') return;
+      facingMap[this.#isFacing]();
+      this.mainSprite.use(sprite(`attack-${this.#isFacing}`));
+      this.mainSprite.play('attack');
+      setTimeout(() => {
+        this.mainSprite.area.shape = new Polygon([
+          vec2(0, 0),
+          vec2(20, 0),
+          vec2(20, 30),
+          vec2(0, 30),
+        ]);
+      }, 100);
+    });
+  }
+
+  #loadAssets() {
     /// MOVE LEFT ///
     loadSpriteAtlas('./assets/sprites/main/walk/WarriorLeftWalk.png', {
       'walk-left': {
@@ -46,20 +178,6 @@ export default class MainCharacter {
         },
       },
     });
-    onKeyDown('left', () => {
-      if (this.mainSprite.curAnim() === 'attack') return;
-      if (this.mainSprite.curAnim() !== 'run') {
-        this.mainSprite.use(sprite('walk-left'));
-        this.mainSprite.play('run');
-        this.#isFacing = 'left';
-      }
-      this.mainSprite.move(-this.#SPEED, 0);
-    });
-    onKeyRelease('left', () => {
-      this.mainSprite.frame = 0;
-      this.mainSprite.stop();
-    });
-
     /// MOVE RIGHT ///
     loadSpriteAtlas('./assets/sprites/main/walk/WarriorRightWalk.png', {
       'walk-right': {
@@ -78,21 +196,7 @@ export default class MainCharacter {
         },
       },
     });
-    onKeyDown('right', () => {
-      if (this.mainSprite.curAnim() === 'attack') return;
-      if (this.mainSprite.curAnim() !== 'run') {
-        this.mainSprite.use(sprite('walk-right'));
-        this.mainSprite.play('run');
-        this.#isFacing = 'right';
-      }
-      this.mainSprite.move(this.#SPEED, 0);
-    });
-    onKeyRelease('right', () => {
-      this.mainSprite.frame = 0;
-      this.mainSprite.stop();
-    });
-
-    /// MAIN SPRITE MOVE UP ///
+    /// MOVE UP ///
     loadSpriteAtlas('./assets/sprites/main/walk/WarriorUpWalk.png', {
       'walk-up': {
         x: 0,
@@ -110,21 +214,7 @@ export default class MainCharacter {
         },
       },
     });
-    onKeyDown('up', () => {
-      if (this.mainSprite.curAnim() === 'attack') return;
-      if (this.mainSprite.curAnim() !== 'run') {
-        this.mainSprite.use(sprite('walk-up'));
-        this.mainSprite.play('run');
-        this.#isFacing = 'up';
-      }
-      this.mainSprite.move(0, -this.#SPEED);
-    });
-    onKeyRelease('up', () => {
-      this.mainSprite.frame = 0;
-      this.mainSprite.stop();
-    });
-
-    /// MAIN SPRITE MOVE DOWN ///
+    /// MOVE DOWN ///
     loadSpriteAtlas('./assets/sprites/main/walk/WarriorDownWalk.png', {
       'walk-down': {
         x: 0,
@@ -142,22 +232,6 @@ export default class MainCharacter {
         },
       },
     });
-    onKeyDown('down', () => {
-      if (this.mainSprite.curAnim() === 'attack') return;
-      if (this.mainSprite.curAnim() !== 'run') {
-        this.mainSprite.use(sprite('walk-down'));
-        this.mainSprite.play('run');
-        this.#isFacing = 'down';
-      }
-      this.mainSprite.move(0, this.#SPEED);
-    });
-    onKeyRelease('down', () => {
-      this.mainSprite.frame = 0;
-      this.mainSprite.stop();
-    });
-  }
-
-  #initAttack() {
     /// ATTACK LEFT ///
     loadSpriteAtlas('./assets/sprites/main/attack/WarriorLeftAttack01.png', {
       'attack-left': {
@@ -234,37 +308,80 @@ export default class MainCharacter {
       },
     });
 
-    /// ATTACK ANIMATION ///
-    const facingMap = {
-      down: () => {
-        this.mainSprite.area.shape.pts[2] = vec2(20, 50);
-        this.mainSprite.area.shape.pts[3] = vec2(0, 50);
+    /// HURT LEFT ///
+    loadSpriteAtlas('./assets/sprites/main/hurt/WarriorLeftHurt.png', {
+      'hurt-left': {
+        x: 0,
+        y: 0,
+        width: 48 * 4,
+        height: 48,
+        sliceX: 4,
+        anims: {
+          hurt: {
+            from: 0,
+            to: 3,
+            speed: this.#ANIM_SPEED,
+            loop: false,
+          },
+        },
       },
-      up: () => {
-        this.mainSprite.area.shape.pts[0] = vec2(0, -20);
-        this.mainSprite.area.shape.pts[1] = vec2(20, -20);
+    });
+
+    /// HURT RIGHT ///
+    loadSpriteAtlas('./assets/sprites/main/hurt/WarriorRightHurt.png', {
+      'hurt-right': {
+        x: 0,
+        y: 0,
+        width: 48 * 4,
+        height: 48,
+        sliceX: 4,
+        anims: {
+          hurt: {
+            from: 0,
+            to: 3,
+            speed: this.#ANIM_SPEED,
+            loop: false,
+          },
+        },
       },
-      left: () => {
-        this.mainSprite.area.shape.pts[0] = vec2(-20, 0);
-        this.mainSprite.area.shape.pts[3] = vec2(-20, 30);
+    });
+
+    /// HURT UP ///
+    loadSpriteAtlas('./assets/sprites/main/hurt/WarriorUpHurt.png', {
+      'hurt-up': {
+        x: 0,
+        y: 0,
+        width: 48 * 4,
+        height: 48,
+        sliceX: 4,
+        anims: {
+          hurt: {
+            from: 0,
+            to: 3,
+            speed: this.#ANIM_SPEED,
+            loop: false,
+          },
+        },
       },
-      right: () => {
-        this.mainSprite.area.shape.pts[1] = vec2(40, 0);
-        this.mainSprite.area.shape.pts[2] = vec2(40, 30);
+    });
+
+    /// HURT DOWN ///
+    loadSpriteAtlas('./assets/sprites/main/hurt/WarriorDownHurt.png', {
+      'hurt-down': {
+        x: 0,
+        y: 0,
+        width: 48 * 4,
+        height: 48,
+        sliceX: 4,
+        anims: {
+          hurt: {
+            from: 0,
+            to: 3,
+            speed: this.#ANIM_SPEED,
+            loop: false,
+          },
+        },
       },
-    };
-    onKeyPress('space', () => {
-      facingMap[this.#isFacing]();
-      this.mainSprite.use(sprite(`attack-${this.#isFacing}`));
-      this.mainSprite.play('attack');
-      setTimeout(() => {
-        this.mainSprite.area.shape = new Polygon([
-          vec2(0, 0),
-          vec2(20, 0),
-          vec2(20, 30),
-          vec2(0, 30),
-        ]);
-      }, 100);
     });
   }
 }

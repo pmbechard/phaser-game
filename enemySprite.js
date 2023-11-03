@@ -25,6 +25,10 @@ export default class Enemy {
     ]);
   }
 
+  get isFacing() {
+    return this.#isFacing;
+  }
+
   #initMovement() {
     loadSpriteAtlas('./assets/sprites/enemy/walk/CultistDownWalk.png', {
       'cultist-walk-down': {
