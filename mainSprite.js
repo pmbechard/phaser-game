@@ -1,5 +1,6 @@
 export default class MainCharacter {
   #isFacing;
+  #isDead;
   #SPEED;
   #ANIM_SPEED;
 
@@ -7,6 +8,7 @@ export default class MainCharacter {
     this.#SPEED = 150;
     this.#ANIM_SPEED = 20;
     this.#isFacing = 'down';
+    this.#isDead = false;
     this.#loadAssets();
     this.#initMovement();
     this.mainSprite = add([
@@ -23,12 +25,17 @@ export default class MainCharacter {
       anchor('center'),
       body(),
       scale(2),
+      health(5),
     ]);
     this.#initAttack();
   }
 
   get isFacing() {
     return this.#isFacing;
+  }
+
+  get isDead() {
+    return this.#isDead;
   }
 
   isAttacking() {
@@ -38,22 +45,39 @@ export default class MainCharacter {
   takeDamage(collision) {
     if (collision.isTop()) {
       this.mainSprite.moveBy(0, 50);
+      this.#isFacing = 'up';
     } else if (collision.isBottom()) {
       this.mainSprite.moveBy(0, -50);
+      this.#isFacing = 'down';
     } else if (collision.isLeft()) {
       this.mainSprite.moveBy(50, 0);
+      this.#isFacing = 'left';
     } else {
       this.mainSprite.moveBy(-50, 0);
+      this.#isFacing = 'right';
     }
-    this.mainSprite.use(sprite(`hurt-${this.#isFacing}`));
-    this.mainSprite.play('hurt');
+    this.mainSprite.hurt(1);
+    if (this.mainSprite.hp() === 0) {
+      this.mainSprite.use(sprite('death'));
+      this.#isDead = true;
+      this.mainSprite.play('death');
+    } else {
+      this.mainSprite.use(sprite(`hurt-${this.#isFacing}`));
+      this.mainSprite.play('hurt', {
+        onEnd: () => {
+          this.mainSprite.frame = 0;
+          this.mainSprite.stop();
+        },
+      });
+    }
   }
 
   #initMovement() {
     onKeyDown('left', () => {
       if (
         this.mainSprite.curAnim() === 'attack' ||
-        this.mainSprite.curAnim() === 'hurt'
+        this.mainSprite.curAnim() === 'hurt' ||
+        this.mainSprite.curAnim() === 'death'
       )
         return;
       if (this.mainSprite.curAnim() !== 'run') {
@@ -64,6 +88,12 @@ export default class MainCharacter {
       this.mainSprite.move(-this.#SPEED, 0);
     });
     onKeyRelease('left', () => {
+      if (
+        this.mainSprite.curAnim() === 'attack' ||
+        this.mainSprite.curAnim() === 'hurt' ||
+        this.mainSprite.curAnim() === 'death'
+      )
+        return;
       this.mainSprite.frame = 0;
       this.mainSprite.stop();
     });
@@ -71,7 +101,8 @@ export default class MainCharacter {
     onKeyDown('right', () => {
       if (
         this.mainSprite.curAnim() === 'attack' ||
-        this.mainSprite.curAnim() === 'hurt'
+        this.mainSprite.curAnim() === 'hurt' ||
+        this.mainSprite.curAnim() === 'death'
       )
         return;
       if (this.mainSprite.curAnim() !== 'run') {
@@ -82,6 +113,12 @@ export default class MainCharacter {
       this.mainSprite.move(this.#SPEED, 0);
     });
     onKeyRelease('right', () => {
+      if (
+        this.mainSprite.curAnim() === 'attack' ||
+        this.mainSprite.curAnim() === 'hurt' ||
+        this.mainSprite.curAnim() === 'death'
+      )
+        return;
       this.mainSprite.frame = 0;
       this.mainSprite.stop();
     });
@@ -89,7 +126,8 @@ export default class MainCharacter {
     onKeyDown('up', () => {
       if (
         this.mainSprite.curAnim() === 'attack' ||
-        this.mainSprite.curAnim() === 'hurt'
+        this.mainSprite.curAnim() === 'hurt' ||
+        this.mainSprite.curAnim() === 'death'
       )
         return;
       if (this.mainSprite.curAnim() !== 'run') {
@@ -100,6 +138,12 @@ export default class MainCharacter {
       this.mainSprite.move(0, -this.#SPEED);
     });
     onKeyRelease('up', () => {
+      if (
+        this.mainSprite.curAnim() === 'attack' ||
+        this.mainSprite.curAnim() === 'hurt' ||
+        this.mainSprite.curAnim() === 'death'
+      )
+        return;
       this.mainSprite.frame = 0;
       this.mainSprite.stop();
     });
@@ -107,7 +151,8 @@ export default class MainCharacter {
     onKeyDown('down', () => {
       if (
         this.mainSprite.curAnim() === 'attack' ||
-        this.mainSprite.curAnim() === 'hurt'
+        this.mainSprite.curAnim() === 'hurt' ||
+        this.mainSprite.curAnim() === 'death'
       )
         return;
       if (this.mainSprite.curAnim() !== 'run') {
@@ -118,6 +163,12 @@ export default class MainCharacter {
       this.mainSprite.move(0, this.#SPEED);
     });
     onKeyRelease('down', () => {
+      if (
+        this.mainSprite.curAnim() === 'attack' ||
+        this.mainSprite.curAnim() === 'hurt' ||
+        this.mainSprite.curAnim() === 'death'
+      )
+        return;
       this.mainSprite.frame = 0;
       this.mainSprite.stop();
     });
@@ -160,7 +211,7 @@ export default class MainCharacter {
   }
 
   #loadAssets() {
-    /// MOVE LEFT ///
+    /// MOVE ///
     loadSpriteAtlas('./assets/sprites/main/walk/WarriorLeftWalk.png', {
       'walk-left': {
         x: 0,
@@ -178,7 +229,6 @@ export default class MainCharacter {
         },
       },
     });
-    /// MOVE RIGHT ///
     loadSpriteAtlas('./assets/sprites/main/walk/WarriorRightWalk.png', {
       'walk-right': {
         x: 0,
@@ -196,7 +246,6 @@ export default class MainCharacter {
         },
       },
     });
-    /// MOVE UP ///
     loadSpriteAtlas('./assets/sprites/main/walk/WarriorUpWalk.png', {
       'walk-up': {
         x: 0,
@@ -214,7 +263,6 @@ export default class MainCharacter {
         },
       },
     });
-    /// MOVE DOWN ///
     loadSpriteAtlas('./assets/sprites/main/walk/WarriorDownWalk.png', {
       'walk-down': {
         x: 0,
@@ -232,7 +280,8 @@ export default class MainCharacter {
         },
       },
     });
-    /// ATTACK LEFT ///
+
+    /// ATTACK ///
     loadSpriteAtlas('./assets/sprites/main/attack/WarriorLeftAttack01.png', {
       'attack-left': {
         x: 0,
@@ -250,8 +299,6 @@ export default class MainCharacter {
         },
       },
     });
-
-    /// ATTACK RIGHT ///
     loadSpriteAtlas('./assets/sprites/main/attack/WarriorRightAttack01.png', {
       'attack-right': {
         x: 0,
@@ -269,8 +316,6 @@ export default class MainCharacter {
         },
       },
     });
-
-    /// ATTACK UP ///
     loadSpriteAtlas('./assets/sprites/main/attack/WarriorDownAttack01.png', {
       'attack-down': {
         x: 0,
@@ -288,8 +333,6 @@ export default class MainCharacter {
         },
       },
     });
-
-    /// ATTACK DOWN ///
     loadSpriteAtlas('./assets/sprites/main/attack/WarriorUpAttack01.png', {
       'attack-up': {
         x: 0,
@@ -308,7 +351,7 @@ export default class MainCharacter {
       },
     });
 
-    /// HURT LEFT ///
+    /// HURT ///
     loadSpriteAtlas('./assets/sprites/main/hurt/WarriorLeftHurt.png', {
       'hurt-left': {
         x: 0,
@@ -326,8 +369,6 @@ export default class MainCharacter {
         },
       },
     });
-
-    /// HURT RIGHT ///
     loadSpriteAtlas('./assets/sprites/main/hurt/WarriorRightHurt.png', {
       'hurt-right': {
         x: 0,
@@ -345,8 +386,6 @@ export default class MainCharacter {
         },
       },
     });
-
-    /// HURT UP ///
     loadSpriteAtlas('./assets/sprites/main/hurt/WarriorUpHurt.png', {
       'hurt-up': {
         x: 0,
@@ -364,8 +403,6 @@ export default class MainCharacter {
         },
       },
     });
-
-    /// HURT DOWN ///
     loadSpriteAtlas('./assets/sprites/main/hurt/WarriorDownHurt.png', {
       'hurt-down': {
         x: 0,
@@ -377,6 +414,25 @@ export default class MainCharacter {
           hurt: {
             from: 0,
             to: 3,
+            speed: this.#ANIM_SPEED,
+            loop: false,
+          },
+        },
+      },
+    });
+
+    /// DEATH ///
+    loadSpriteAtlas('./assets/sprites/main/death/WarriorDownDeath.png', {
+      death: {
+        x: 0,
+        y: 0,
+        width: 48 * 5,
+        height: 48,
+        sliceX: 5,
+        anims: {
+          death: {
+            from: 0,
+            to: 4,
             speed: this.#ANIM_SPEED,
             loop: false,
           },
