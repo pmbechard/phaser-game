@@ -27,14 +27,14 @@ export default class Level1 {
           // ' ': () => [sprite('grass'), area(), scale(0.25)],
           '-': () => [
             sprite('wall-hor'),
-            area({ offset: vec2(0, 7), scale: vec2(2, 1) }),
+            area(),
             body({ isStatic: true }),
             anchor('center'),
             scale(1, 24 / 7),
           ],
           '=': () => [
             sprite('wall-vert'),
-            area({ offset: vec2(7, 0), scale: vec2(1, 2) }),
+            area(),
             body({ isStatic: true }),
             scale(24 / 7, 1),
             anchor('center'),

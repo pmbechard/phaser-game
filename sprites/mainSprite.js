@@ -16,13 +16,12 @@ export default class MainCharacter {
       pos(window.innerWidth / 2 - 10, window.innerHeight / 2 - 15),
       area({
         shape: new Polygon([
-          vec2(0, 0),
-          vec2(20, 0),
-          vec2(20, 30),
-          vec2(0, 30),
+          vec2(15, 10),
+          vec2(35, 10),
+          vec2(35, 40),
+          vec2(15, 40),
         ]),
       }),
-      anchor('center'),
       body({ isStatic: false }),
       scale(2),
       health(5),
@@ -178,20 +177,44 @@ export default class MainCharacter {
     /// ATTACK ANIMATION ///
     const facingMap = {
       down: () => {
-        this.mainSprite.area.shape.pts[2] = vec2(20, 50);
-        this.mainSprite.area.shape.pts[3] = vec2(0, 50);
+        this.mainSprite.area.shape.pts[2] = vec2(
+          this.mainSprite.area.shape.pts[2].x,
+          this.mainSprite.area.shape.pts[2].y + 15
+        );
+        this.mainSprite.area.shape.pts[3] = vec2(
+          this.mainSprite.area.shape.pts[3].x,
+          this.mainSprite.area.shape.pts[3].y + 15
+        );
       },
       up: () => {
-        this.mainSprite.area.shape.pts[0] = vec2(0, -20);
-        this.mainSprite.area.shape.pts[1] = vec2(20, -20);
+        this.mainSprite.area.shape.pts[0] = vec2(
+          this.mainSprite.area.shape.pts[0].x,
+          this.mainSprite.area.shape.pts[0].y - 15
+        );
+        this.mainSprite.area.shape.pts[1] = vec2(
+          this.mainSprite.area.shape.pts[1].x,
+          this.mainSprite.area.shape.pts[1].y - 15
+        );
       },
       left: () => {
-        this.mainSprite.area.shape.pts[0] = vec2(-20, 0);
-        this.mainSprite.area.shape.pts[3] = vec2(-20, 30);
+        this.mainSprite.area.shape.pts[0] = vec2(
+          this.mainSprite.area.shape.pts[0].x - 15,
+          this.mainSprite.area.shape.pts[0].y
+        );
+        this.mainSprite.area.shape.pts[3] = vec2(
+          this.mainSprite.area.shape.pts[3].x - 15,
+          this.mainSprite.area.shape.pts[3].y
+        );
       },
       right: () => {
-        this.mainSprite.area.shape.pts[1] = vec2(40, 0);
-        this.mainSprite.area.shape.pts[2] = vec2(40, 30);
+        this.mainSprite.area.shape.pts[1] = vec2(
+          this.mainSprite.area.shape.pts[1].x + 15,
+          this.mainSprite.area.shape.pts[1].y
+        );
+        this.mainSprite.area.shape.pts[2] = vec2(
+          this.mainSprite.area.shape.pts[2].x + 15,
+          this.mainSprite.area.shape.pts[2].y
+        );
       },
     };
     onKeyPress('space', () => {
@@ -201,10 +224,10 @@ export default class MainCharacter {
       this.mainSprite.play('attack');
       setTimeout(() => {
         this.mainSprite.area.shape = new Polygon([
-          vec2(0, 0),
-          vec2(20, 0),
-          vec2(20, 30),
-          vec2(0, 30),
+          vec2(15, 10),
+          vec2(35, 10),
+          vec2(35, 40),
+          vec2(15, 40),
         ]);
       }, 100);
     });

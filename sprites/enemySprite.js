@@ -14,13 +14,12 @@ export default class Enemy {
       pos(xPos, yPos),
       area({
         shape: new Polygon([
-          vec2(0, 0),
-          vec2(20, 0),
-          vec2(20, 30),
-          vec2(0, 30),
+          vec2(15, 10),
+          vec2(35, 10),
+          vec2(35, 40),
+          vec2(15, 40),
         ]),
       }),
-      anchor('center'),
       body(),
       scale(2),
       health(3),

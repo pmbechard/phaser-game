@@ -1,6 +1,7 @@
 import './style.css';
 import kaboom from 'kaboom';
 kaboom();
+// debug.inspect = true;
 
 // Asset Imports
 import MainCharacter from './sprites/mainSprite';
@@ -28,26 +29,26 @@ scene('level1', () => {
 
   /// COLLISIONS WITH BOUNDARIES ///
   mainCharacter.mainSprite.onBeforePhysicsResolve((col) => {
+    console.log(col);
     const filtered = enemies.filter((e) => {
       return e.enemySprite === col.target;
     });
     if (filtered.length >= 1) return;
 
     if (!mainCharacter.isAttacking()) {
-      if (col.isTop()) mainCharacter.mainSprite.moveBy(0, 10);
-      else if (col.isBottom()) mainCharacter.mainSprite.moveBy(0, -10);
-      else if (col.isLeft()) mainCharacter.mainSprite.moveBy(10, 0);
-      else if (col.isRight()) mainCharacter.mainSprite.moveBy(-10, 0);
-    } else {
-      if (mainCharacter.isFacing === 'up')
-        mainCharacter.mainSprite.moveBy(0, 10);
-      else if (mainCharacter.isFacing === 'down')
-        mainCharacter.mainSprite.moveBy(0, -10);
-      else if (mainCharacter.isFacing === 'left')
-        mainCharacter.mainSprite.moveBy(10, 0);
-      else if (mainCharacter.isFacing === 'right')
-        mainCharacter.mainSprite.moveBy(-10, 0);
+      console.log(col.displacement);
+      if (col.isTop()) mainCharacter.mainSprite.move(0, 10);
+      if (col.isLeft()) mainCharacter.mainSprite.move(10, 0);
+      if (col.isRight()) mainCharacter.mainSprite.move(-10, 0);
+      if (col.isBottom()) mainCharacter.mainSprite.move(0, -10);
     }
+    if (mainCharacter.isFacing === 'up') mainCharacter.mainSprite.move(0, 10);
+    else if (mainCharacter.isFacing === 'down')
+      mainCharacter.mainSprite.move(0, -10);
+    else if (mainCharacter.isFacing === 'left')
+      mainCharacter.mainSprite.move(10, 0);
+    else if (mainCharacter.isFacing === 'right')
+      mainCharacter.mainSprite.move(-10, 0);
   });
 
   /// COLLISIONS WITH ENEMY ///
@@ -112,17 +113,17 @@ scene('level2', () => {
 
     if (!mainCharacter.isAttacking()) {
       if (col.isTop()) mainCharacter.mainSprite.moveBy(0, 10);
-      else if (col.isBottom()) mainCharacter.mainSprite.moveBy(0, -10);
-      else if (col.isLeft()) mainCharacter.mainSprite.moveBy(10, 0);
-      else if (col.isRight()) mainCharacter.mainSprite.moveBy(-10, 0);
+      if (col.isBottom()) mainCharacter.mainSprite.moveBy(0, -10);
+      if (col.isLeft()) mainCharacter.mainSprite.moveBy(10, 0);
+      if (col.isRight()) mainCharacter.mainSprite.moveBy(-10, 0);
     } else {
       if (mainCharacter.isFacing === 'up')
         mainCharacter.mainSprite.moveBy(0, 10);
-      else if (mainCharacter.isFacing === 'down')
+      if (mainCharacter.isFacing === 'down')
         mainCharacter.mainSprite.moveBy(0, -10);
-      else if (mainCharacter.isFacing === 'left')
+      if (mainCharacter.isFacing === 'left')
         mainCharacter.mainSprite.moveBy(10, 0);
-      else if (mainCharacter.isFacing === 'right')
+      if (mainCharacter.isFacing === 'right')
         mainCharacter.mainSprite.moveBy(-10, 0);
     }
   });
