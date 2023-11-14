@@ -13,7 +13,7 @@ export default class MainCharacter {
     this.#initMovement();
     this.mainSprite = add([
       sprite('walk-down'),
-      pos(80, 40),
+      pos(window.innerWidth / 2 - 10, window.innerHeight / 2 - 15),
       area({
         shape: new Polygon([
           vec2(0, 0),
@@ -23,7 +23,7 @@ export default class MainCharacter {
         ]),
       }),
       anchor('center'),
-      body(),
+      body({ isStatic: false }),
       scale(2),
       health(5),
     ]);

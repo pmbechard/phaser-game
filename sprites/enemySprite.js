@@ -3,7 +3,7 @@ export default class Enemy {
   #SPEED;
   #ANIM_SPEED;
 
-  constructor() {
+  constructor(xPos, yPos) {
     this.#isFacing = 'down';
     this.#SPEED = 100;
     this.#ANIM_SPEED = 15;
@@ -11,7 +11,7 @@ export default class Enemy {
     this.#initMovement();
     this.enemySprite = add([
       sprite('cultist-walk-down'),
-      pos(280, 240),
+      pos(xPos, yPos),
       area({
         shape: new Polygon([
           vec2(0, 0),
